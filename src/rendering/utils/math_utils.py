@@ -2,36 +2,27 @@ import math
 
 class Utils:
     @staticmethod
-    def normalize(v):
-        norm = math.sqrt(sum(coord * coord for coord in v))
-        return [coord / norm for coord in v] if norm != 0 else v
-
-    @staticmethod
     def transform_to_camera(vertices, E, R):
+        # Converte coordenadas do mundo para o sistema da câmera (Eye, At, Up)
+        # v_shift retira a translação da câmera, R aplica a rotação para alinhar com os eixos UVN
         transformed = []
         for v in vertices:
             v_shift = [v[i] - E[i] for i in range(3)]
-            v_cam = [
-                v_shift[0] * R[0][0] + v_shift[1] * R[0][1] + v_shift[2] * R[0][2],
-                v_shift[0] * R[1][0] + v_shift[1] * R[1][1] + v_shift[2] * R[1][2],
-                v_shift[0] * R[2][0] + v_shift[1] * R[2][1] + v_shift[2] * R[2][2]
-            ]
+            v_cam = [sum(v_shift[j] * R[i][j] for j in range(3)) for i in range(3)]
             transformed.append(v_cam)
         return transformed
 
     @staticmethod
     def perspective_project(v, d=1):
+        # Projeção clássica: divide X e Y por Z para criar o efeito de profundidade
+        # Altere 'd' para ajustar a distância focal (zoom)
         x, y, z = v
-        if z == 0:
-            z = 1e-5
+        if z == 0: z = 1e-5 # Evita divisão por zero
         return [-d * x / z, -d * y / z]
 
     @staticmethod
     def to_pixel(p, scale, tx, ty, height):
+        # Mapeia coordenadas normalizadas (-1 a 1) para pixels da imagem (ex: 0 a 1080)
         x = int(scale * p[0] + tx)
-        y = height - int(scale * p[1] + ty)
+        y = height - int(scale * p[1] + ty) # Inverte Y pois em imagens o (0,0) é o topo
         return (x, y)
-
-    @staticmethod
-    def darker_color(color, factor=0.5):
-        return tuple(max(0, min(255, int(c * factor))) for c in color)
