@@ -22,7 +22,6 @@ class Renderer:
         self.up = [0, 1, 0]
 
     def _compute_camera_matrix(self, eye, at, up):
-        """Calcula a matriz de rotação (R) para transformar para o sistema de câmera."""
         n = Utils.normalize([at[i] - eye[i] for i in range(3)])
         u = Utils.normalize([
             n[1] * up[2] - n[2] * up[1],
@@ -52,11 +51,6 @@ class Renderer:
                     z_vals = [vertices[idx_atual][2],
                               vertices[idx_proximo][2]]
                     ax.plot3D(x_vals, y_vals, z_vals, color=edge_color, linewidth=2)
-        else:
-            for edge in topology:
-                p0, p1 = vertices[edge[0]], vertices[edge[1]]
-                ax.plot3D([p0[0], p1[0]], [p0[1], p1[1]], [p0[2], p1[2]],
-                          color=face_color, linewidth=3)
 
     def _plot_scene_shapes(self, ax, vertices_dict, topology_dict, title, limits, is_3d=True):
         ax.set_title(title)
@@ -192,7 +186,7 @@ class Renderer:
         }
 
         if axes is None:
-            fig, axes = plt.subplots(1, 3, figsize=(18, 6), # Ajustado para 1x3 para melhor visualização
+            fig, axes = plt.subplots(1, 3, figsize=(18, 6),
                                      subplot_kw={'projection': '3d'})
             axes = axes.flatten()
             show = True
@@ -202,19 +196,13 @@ class Renderer:
         def plot_solido(ax, vertices, topo, solido_name, color, is_mesh=True):
             ax.view_init(elev=25, azim=-45)
             ax.set_title(f"{solido_name} no Mundo")
-            
-            # --- MUDANÇAS PARA PROPORÇÃO DO TORO ---
-            # 1. Tenta forçar a proporção de caixa quadrada
+        
             ax.set_box_aspect([1, 1, 1]) 
-            
-            # 2. Define limites IGUAIS para X, Y e Z. 
-            # Como o Toro vai de -6 a 6, o valor 7 garante que o círculo Z (-2 a 2) 
-            # não seja esticado para preencher o gráfico.
+          
             limit = 7
             ax.set_xlim(-limit, limit)
             ax.set_ylim(-limit, limit)
             ax.set_zlim(-limit, limit)
-            # ---------------------------------------
 
             self._plot_polyhedron(ax, vertices, topo, color,
                                   edge_color='black', is_mesh=is_mesh)
